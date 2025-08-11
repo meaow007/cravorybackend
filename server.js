@@ -9,15 +9,6 @@ const PORT = 5000; // or change if needed
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const path = require('path');
-const admin = require("firebase-admin");
-const serviceAccount = require("./config/cravory-c19af-firebase-adminsdk-fbsvc-6a3011921b.json");
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://cravory-c19af.firebaseio.com" // Replace with your Firebase DB URL
-});
-
-
 
 
 // Middleware
