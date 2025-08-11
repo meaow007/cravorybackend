@@ -1,1 +1,2 @@
-config/firebase-service-key.json
+# Firebase credentials
+config/*firebase-adminsdk*.json
