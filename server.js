@@ -1,15 +1,16 @@
 // server.js
+require('dotenv').config();  // Load .env variables
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const Order = require('./models/Order'); // make sure path is correct
 const bodyParser = require('body-parser');
 const app = express();
-const PORT = 5000; // or change if needed
+const PORT = process.env.PORT || 5000; // use port from env or default 5000
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const path = require('path');
-
 
 // Middleware
 app.use(cors({
@@ -23,38 +24,38 @@ app.use(cors({
   credentials: true
 }));
 
-
 app.use(express.json());
 app.use('/uploads', express.static('uploads'))
 
-
-
 // MongoDB Connection
-mongoose.connect('mongodb://127.0.0.1:27017/cravory', {
+mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000 // ⬅ 5 seconds timeout
 })
 .then(() => console.log('MongoDB connected'))
-.catch(err => console.error('MongoDB connection error:', err));
-
+.catch(err => {console.error('MongoDB connection error:', err);
+  process.exit(1);
+});
 // Routes
 app.use('/api/orders', orderRoutes);
-app.use('/api/products', require('./routes/productRoutes'));
+app.use('/api/products', productRoutes);
+
 app.get('/', (req, res) => {
   res.send('Cravory Backend Running');
 });
+
 app.post('/api/orders', async (req, res) => {
   try {
-    console.log('📦 Incoming order:', req.body); // ✅ Add this
+    console.log('📦 Incoming order:', req.body);
     const order = new Order(req.body);
     await order.save();
     res.status(201).json({ message: 'Order placed successfully' });
   } catch (err) {
-    console.error('❌ Error saving order:', err.message); // ✅ Show actual error
+    console.error('❌ Error saving order:', err.message);
     res.status(500).json({ error: 'Failed to place order' });
   }
 });
-
 
 app.get('/api/orders', async (req, res) => {
   try {
@@ -67,6 +68,6 @@ app.get('/api/orders', async (req, res) => {
 });
 
 // Start server
-app.listen(5000,'0.0.0.0', () => {
-  console.log("Server running on http://192.168.31.77:5000")
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
 });
